@@ -1,55 +1,22 @@
-// Minimal Service Worker for Gyon Application
-// This service worker provides basic caching for performance optimization
+// Service Worker – self-unregistering stub
+// Registration was disabled in commit 418e284 to prevent stale Vite bundles
+// being served on Render deployments. This file now immediately unregisters
+// itself and deletes all caches so browsers that cached the old SW get clean.
 
-const CACHE_NAME = 'gyon-cache-v1';
-const urlsToCache = [
-    '/',
-    '/static/js/bundle.js',
-    '/static/css/main.css',
-    '/manifest.json'
-];
-
-// Install event - cache resources
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-        .then((cache) => {
-            console.log('Opened cache');
-            return cache.addAll(urlsToCache);
-        })
-        .catch((error) => {
-            console.log('Cache install failed:', error);
-        })
-    );
+self.addEventListener('install', () => {
+  // Skip waiting so this stub activates immediately, replacing the old SW.
+  self.skipWaiting();
 });
 
-// Fetch event - serve from cache when possible
-self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        caches.match(event.request)
-        .then((response) => {
-            // Return cached version or fetch from network
-            return response || fetch(event.request);
-        })
-        .catch((error) => {
-            console.log('Fetch failed:', error);
-            return fetch(event.request);
-        })
-    );
-});
+self.addEventListener('activate', async () => {
+  // Delete every cache entry left by the old service worker.
+  const keys = await caches.keys();
+  await Promise.all(keys.map((key) => caches.delete(key)));
 
-// Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (cacheName !== CACHE_NAME) {
-                        console.log('Deleting old cache:', cacheName);
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
-    );
+  // Unregister this service worker so it is never consulted again.
+  await self.registration.unregister();
+
+  // Force all controlled clients to reload with fresh assets from the server.
+  const clients = await self.clients.matchAll({ type: 'window' });
+  clients.forEach((client) => client.navigate(client.url));
 });

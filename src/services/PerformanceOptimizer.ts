@@ -244,8 +244,8 @@ class PerformanceOptimizer {
   implementCaching(): void {
     if (!this.config.enableCaching) return;
 
-    // Service Worker caching
-    this.registerServiceWorker();
+    // Unregister any stale Service Workers so Vite bundles are always loaded fresh
+    this.unregisterServiceWorker();
     
     // Browser caching
     this.optimizeBrowserCaching();
@@ -255,15 +255,23 @@ class PerformanceOptimizer {
   }
 
   /**
-   * Register service worker for caching
+   * Unregister any previously installed service workers.
+   * DISABLED REGISTRATION: Service Worker registration was disabled to prevent stale Vite bundles
+   * being cached on Render deployments. The SW was intercepting /api/registry/apis
+   * requests and returning cached responses from the old bundle's origin.
+   * This method now actively cleans up any SW that was previously installed.
    */
-  private async registerServiceWorker(): Promise<void> {
+  private async unregisterServiceWorker(): Promise<void> {
+    // Unregister any previously installed service workers so browsers load fresh assets.
     if ('serviceWorker' in navigator) {
       try {
-        const registration = await navigator.serviceWorker.register('/sw.js');
-        console.log('Service Worker registered:', registration);
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          await registration.unregister();
+          console.log('Service Worker unregistered:', registration);
+        }
       } catch (error) {
-        console.error('Service Worker registration failed:', error);
+        console.error('Service Worker unregister failed:', error);
       }
     }
   }
