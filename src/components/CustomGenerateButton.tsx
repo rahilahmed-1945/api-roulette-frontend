@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CompassIcon } from './Icons';
+import { getAPIs } from '../services/api.service';
 import './CustomGenerateButton.css';
+
+// Mirrors the same resolution logic used in api.service.ts so categories
+// requests also reach the deployed backend, not the frontend host.
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api`
+    : 'https://api-roulette-backend.onrender.com/api');
 
 interface API {
   id: string;
@@ -48,7 +57,7 @@ export const CustomGenerateButton: React.FC<CustomGenerateButtonProps> = ({ onGe
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/registry/categories');
+      const response = await fetch(`${API_BASE_URL}/registry/categories`);
       const data = await response.json();
       if (data.success) {
         setCategories(data.data.categories);
@@ -61,14 +70,9 @@ export const CustomGenerateButton: React.FC<CustomGenerateButtonProps> = ({ onGe
   const fetchAPIs = async (category?: string) => {
     setLoading(true);
     try {
-      const url = category && category !== 'all' 
-        ? `/api/registry/apis?category=${category}`
-        : '/api/registry/apis';
-      const response = await fetch(url);
-      const data = await response.json();
-      if (data.success) {
-        setApis(data.data.apis);
-      }
+      const filters = category && category !== 'all' ? { category } : undefined;
+      const apiList = await getAPIs(filters);
+      setApis(apiList);
     } catch (error) {
       console.error('Failed to fetch APIs:', error);
     } finally {
