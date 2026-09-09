@@ -7,9 +7,10 @@ import type {
 /**
  * Base URL for API requests - Works for both local and production
  */
-const API_BASE_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : '/api'; // Use relative path for production (handled by Vercel rewrites)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+  || (import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api`
+    : 'https://api-roulette-backend.onrender.com/api');
 
 /**
  * Axios instance with base configuration
@@ -64,15 +65,15 @@ export class APIError extends Error {
  */
 function handleAPIError(error: unknown): never {
   console.error('❌ API Error:', error);
-  
+
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError<APIResponse<any>>;
-    
+
     if (axiosError.response?.data?.error) {
       const { code, message, details } = axiosError.response.data.error;
       throw new APIError(message, code, details);
     }
-    
+
     if (axiosError.response) {
       throw new APIError(
         `Server error: ${axiosError.response.status}`,
@@ -80,7 +81,7 @@ function handleAPIError(error: unknown): never {
         axiosError.response.data
       );
     }
-    
+
     if (axiosError.request) {
       throw new APIError(
         'Backend server is not responding. Please ensure the backend is running on port 3002.',
@@ -88,7 +89,7 @@ function handleAPIError(error: unknown): never {
       );
     }
   }
-  
+
   throw new APIError(
     error instanceof Error ? error.message : 'An unexpected error occurred',
     'UNKNOWN_ERROR'
@@ -103,14 +104,14 @@ export async function generateMashup(
 ): Promise<MashupResponse> {
   try {
     console.log('🚀 Generating mashup with options:', options);
-    
+
     const response = await apiClient.post<APIResponse<MashupResponse>>(
       '/mashup/generate',
       { options }
     );
-    
+
     console.log('✅ Mashup generated successfully');
-    
+
     if (!response.data.success) {
       throw new APIError(
         response.data.error?.message || 'Mashup generation failed',
@@ -118,7 +119,7 @@ export async function generateMashup(
         response.data.error?.details
       );
     }
-    
+
     return response.data.data;
   } catch (error) {
     return handleAPIError(error);
@@ -130,14 +131,14 @@ export async function generateMashup(
  */
 export async function downloadMashup(downloadUrl: string): Promise<Blob> {
   try {
-    const path = downloadUrl.startsWith('/api/') 
+    const path = downloadUrl.startsWith('/api/')
       ? downloadUrl.substring(4)
       : downloadUrl;
-    
+
     const response = await apiClient.get(path, {
       responseType: 'blob',
     });
-    
+
     return response.data;
   } catch (error) {
     return handleAPIError(error);
@@ -153,20 +154,20 @@ export async function getAPIs(filters?: {
 }): Promise<APIMetadata[]> {
   try {
     const params = new URLSearchParams();
-    
+
     if (filters?.category) {
       params.append('category', filters.category);
     }
-    
+
     if (filters?.authType) {
       params.append('authType', filters.authType);
     }
-    
+
     const response = await apiClient.get<APIResponse<{ apis: APIMetadata[]; count: number }>>(
       '/registry/apis',
       { params }
     );
-    
+
     if (!response.data.success) {
       throw new APIError(
         response.data.error?.message || 'Failed to retrieve APIs',
@@ -174,7 +175,7 @@ export async function getAPIs(filters?: {
         response.data.error?.details
       );
     }
-    
+
     return response.data.data.apis;
   } catch (error) {
     return handleAPIError(error);
