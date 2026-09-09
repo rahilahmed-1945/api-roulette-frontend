@@ -1,0 +1,227 @@
+/* Ultra-Minimalistic File Tabs */
+.file-tabs-container {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-bottom: 1px solid #f0f0f0;
+    min-height: 24px;
+    overflow: hidden;
+}
+
+.file-tabs {
+    display: flex;
+    flex: 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.file-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+/* Minimal Tabs */
+.file-tab {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+    background: #f8f8f8;
+    border-right: 1px solid #f0f0f0;
+    cursor: pointer;
+    min-width: 80px;
+    max-width: 150px;
+    position: relative;
+    user-select: none;
+    height: 24px;
+    font-size: 11px;
+}
+
+.file-tab:hover {
+    background: #f0f0f0;
+}
+
+.file-tab.active {
+    background: #ffffff;
+    border-bottom: 1px solid #007acc;
+}
+
+.tab-icon {
+    font-size: 10px;
+    flex-shrink: 0;
+}
+
+.tab-name {
+    font-size: 11px;
+    font-weight: 400;
+    color: #666666;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+.file-tab.active .tab-name {
+    color: #333333;
+}
+
+.tab-close {
+    background: none;
+    border: none;
+    color: #999999;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+    padding: 0;
+    flex-shrink: 0;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1px;
+}
+
+.tab-close:hover {
+    background: #e0e0e0;
+    color: #666666;
+}
+
+/* Minimal Actions */
+.file-tabs-actions {
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+    border-left: 1px solid #f0f0f0;
+}
+
+.close-all-btn {
+    background: none;
+    border: none;
+    color: #999999;
+    cursor: pointer;
+    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 1px;
+}
+
+.close-all-btn:hover {
+    background: #f0f0f0;
+    color: #666666;
+}
+
+/* Empty State - Minimal */
+.file-tabs-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border-bottom: 1px solid #f0f0f0;
+    min-height: 24px;
+    padding: 0 8px;
+}
+
+.empty-message {
+    color: #999999;
+    font-size: 11px;
+    font-style: italic;
+}
+
+/* Dark Theme - Minimal */
+[data-theme="dark"] .file-tabs-container {
+    background: #1a1a1a;
+    border-bottom-color: #333333;
+}
+
+[data-theme="dark"] .file-tab {
+    background: #2a2a2a;
+    border-right-color: #333333;
+}
+
+[data-theme="dark"] .file-tab:hover {
+    background: #333333;
+}
+
+[data-theme="dark"] .file-tab.active {
+    background: #1a1a1a;
+    border-bottom-color: #007acc;
+}
+
+[data-theme="dark"] .tab-name {
+    color: #cccccc;
+}
+
+[data-theme="dark"] .file-tab.active .tab-name {
+    color: #ffffff;
+}
+
+[data-theme="dark"] .tab-close {
+    color: #888888;
+}
+
+[data-theme="dark"] .tab-close:hover {
+    background: #444444;
+    color: #cccccc;
+}
+
+[data-theme="dark"] .file-tabs-actions {
+    border-left-color: #333333;
+}
+
+[data-theme="dark"] .close-all-btn {
+    color: #888888;
+}
+
+[data-theme="dark"] .close-all-btn:hover {
+    background: #333333;
+    color: #cccccc;
+}
+
+[data-theme="dark"] .file-tabs-empty {
+    background: #1a1a1a;
+    border-bottom-color: #333333;
+}
+
+[data-theme="dark"] .empty-message {
+    color: #888888;
+}
+
+/* Scrollbar - Minimal */
+.file-tabs::-webkit-scrollbar {
+    height: 2px;
+}
+
+.file-tabs::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.file-tabs::-webkit-scrollbar-thumb {
+    background: #e0e0e0;
+    border-radius: 1px;
+}
+
+[data-theme="dark"] .file-tabs::-webkit-scrollbar-thumb {
+    background: #444444;
+}
+
+/* Responsive - Minimal */
+@media (max-width: 768px) {
+    .file-tab {
+        min-width: 60px;
+        max-width: 100px;
+        padding: 0 4px;
+    }
+
+    .tab-name {
+        font-size: 10px;
+    }
+
+    .file-tabs-actions {
+        padding: 0 2px;
+    }
+
+    .close-all-btn {
+        font-size: 9px;
+        padding: 1px 2px;
+    }
+}
